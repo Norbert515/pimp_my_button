@@ -14,7 +14,11 @@ Rect _globalBoundingBoxFor(BuildContext context) {
 class PimpedButton extends StatefulWidget {
   final WidgetBuilder widgetBuilder;
 
-  const PimpedButton({Key key, this.widgetBuilder}) : super(key: key);
+  final Particle particle;
+
+  final Duration duration;
+
+  const PimpedButton({Key key, @required this.widgetBuilder, @required this.particle, this.duration = const Duration(milliseconds: 500)}) : super(key: key);
 
   @override
   PimpedButtonState createState() => new PimpedButtonState();
@@ -35,7 +39,7 @@ class PimpedButtonState extends State<PimpedButton> {
 
     Rect bounds = _globalBoundingBoxFor(state.context);
 
-    AnimationController controller = AnimationController(vsync: vsync, duration: Duration(milliseconds: 500));
+    AnimationController controller = AnimationController(vsync: vsync, duration: state.widget.duration);
 
     double progress = 0.0;
     OverlayEntry entry = OverlayEntry(
@@ -44,7 +48,10 @@ class PimpedButtonState extends State<PimpedButton> {
             rect: bounds.inflate(bounds.width),
             child: IgnorePointer(
               child: CustomPaint(
-                painter: PimpPainter(progress: progress),
+                painter: PimpPainter(
+                  particle: state.widget.particle,
+                  progress: progress,
+                ),
               ),
             ));
       },
@@ -68,69 +75,14 @@ class PimpedButtonState extends State<PimpedButton> {
 }
 
 class PimpPainter extends CustomPainter {
-  final double progress;
+  PimpPainter({this.particle, this.progress});
 
-  PimpPainter({@required this.progress});
+  final double progress;
+  final Particle particle;
 
   @override
   void paint(Canvas canvas, Size size) {
-    canvas.translate(size.width / 2, size.height / 2);
-
-    IntervalParticle(
-        interval: Interval(0.0,0.5, curve: Curves.easeIn),
-        child: PositionedParticle(
-          position: Offset(40.0, 100.0),
-          child: PoppingCircle(
-            color: Colors.black,
-          ),
-        )
-    ).paint(canvas, size, progress);
-
-    IntervalParticle(
-      interval: Interval(0.2,0.5, curve: Curves.easeIn),
-      child: PositionedParticle(
-        position: Offset(-30.0, -40.0),
-        child: PoppingCircle(
-          color: Colors.black,
-        ),
-      )
-    ).paint(canvas, size, progress);
-
-    IntervalParticle(
-        interval: Interval(0.4,0.8, curve: Curves.easeIn),
-        child: PositionedParticle(
-          position: Offset(50.0, -70.0),
-          child: PoppingCircle(
-            color: Colors.black,
-          ),
-        )
-    ).paint(canvas, size, progress);
-
-    IntervalParticle(
-        interval: Interval(0.5,1.0, curve: Curves.easeIn),
-        child: PositionedParticle(
-          position: Offset(-50.0, 80.0),
-          child: PoppingCircle(
-            color: Colors.black,
-          ),
-        )
-    ).paint(canvas, size, progress);
-
-
-    Mirror(
-      numberOfParticles: 6,
-        child: MovingPositionedParticle(
-          begin: Offset(0.0, 20.0),
-          end: Offset(0.0, 60.0),
-          child: FadingRect(
-              width: 5.0,
-              height: 15.0,
-              color: Colors.pink
-          ),
-        ),
-        initialRotation: -pi / 5
-    ).paint(canvas, size, progress);
-
+    particle.paint(canvas, size, progress);
   }
 
   @override
@@ -196,10 +148,7 @@ class Mirror extends Particle {
   }
 }
 
-
-
 class FadingRect extends Particle {
-
   final Color color;
   final double width;
   final double height;
@@ -213,7 +162,6 @@ class FadingRect extends Particle {
 }
 
 class FadingCircle extends Particle {
-
   final Color color;
   final double radius;
 
@@ -226,7 +174,6 @@ class FadingCircle extends Particle {
 }
 
 class PositionedParticle extends Particle {
-
   PositionedParticle({this.position, this.child});
 
   final Particle child;
@@ -243,11 +190,9 @@ class PositionedParticle extends Particle {
 }
 
 class MovingPositionedParticle extends Particle {
-
-  MovingPositionedParticle({Offset begin, Offset end, this.child}): offsetTween = Tween<Offset>(begin: begin, end: end);
+  MovingPositionedParticle({Offset begin, Offset end, this.child}) : offsetTween = Tween<Offset>(begin: begin, end: end);
 
   final Particle child;
-
 
   final Tween<Offset> offsetTween;
 
@@ -261,7 +206,6 @@ class MovingPositionedParticle extends Particle {
 }
 
 class IntervalParticle extends Particle {
-
   final Interval interval;
 
   final Particle child;
@@ -270,8 +214,37 @@ class IntervalParticle extends Particle {
 
   @override
   void paint(Canvas canvas, Size size, double progress) {
-    if(progress < interval.begin || progress > interval.end) return;
+    if (progress < interval.begin || progress > interval.end) return;
     child.paint(canvas, size, interval.transform(progress));
+  }
+}
+
+/// Does nothing else than holding a list of particles and painting them in that order
+class ContainerParticle extends Particle {
+  final List<Particle> children;
+
+  ContainerParticle({this.children});
+
+  @override
+  void paint(Canvas canvas, Size size, double progress) {
+    for (Particle particle in children) {
+      particle.paint(canvas, size, progress);
+    }
+  }
+}
+
+class CenterParticle extends Particle {
+
+  final Particle child;
+
+  CenterParticle({this.child});
+  @override
+  void paint(Canvas canvas, Size size, double progress) {
+    canvas.save();
+    canvas.translate(size.width / 2, size.height / 2);
+    child.paint(canvas, size, progress);
+    canvas.restore();
+
   }
 
 }
