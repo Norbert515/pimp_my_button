@@ -8,32 +8,70 @@ import 'package:flutter/material.dart';
 Rect _globalBoundingBoxFor(BuildContext context) {
   final RenderBox box = context.findRenderObject();
   assert(box != null && box.hasSize);
-  return MatrixUtils.transformRect(box.getTransformTo(null), Offset.zero & box.size);
+  return box.localToGlobal(Offset.zero) & box.size;
 }
 
+typedef PimpedWidgetBuilder = Widget Function(BuildContext context, AnimationController controller);
+
 class PimpedButton extends StatefulWidget {
-  final WidgetBuilder widgetBuilder;
+  final PimpedWidgetBuilder pimpedWidgetBuilder;
 
   final Particle particle;
 
   final Duration duration;
 
-  const PimpedButton({Key key, @required this.widgetBuilder, @required this.particle, this.duration = const Duration(milliseconds: 500)}) : super(key: key);
+  const PimpedButton({
+    Key key,
+    @required this.particle,
+    this.duration = const Duration(milliseconds: 500),
+    @required this.pimpedWidgetBuilder,
+  }) : super(key: key);
 
   @override
   PimpedButtonState createState() => new PimpedButtonState();
 }
 
-class PimpedButtonState extends State<PimpedButton> {
+class PimpedButtonState extends State<PimpedButton> with SingleTickerProviderStateMixin {
+  AnimationController controller;
+
+  Random random;
+  int seed;
+
   @override
-  Widget build(BuildContext context) {
-    return Builder(
-      builder: (BuildContext childContext) {
-        return widget.widgetBuilder(childContext);
-      },
-    );
+  void initState() {
+    super.initState();
+    random = Random();
+    seed = random.nextInt(100000000);
+    controller = AnimationController(vsync: this, duration: widget.duration);
+    controller.addStatusListener((status) {
+      if (status == AnimationStatus.forward ||  status == AnimationStatus.reverse) {
+        seed = random.nextInt(10000000);
+      }
+    });
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (context, child) {
+        if(controller.status == AnimationStatus.forward || controller.status == AnimationStatus.reverse) {
+          return CustomPaint(
+            painter: PimpPainter(
+              particle: widget.particle,
+              seed: seed,
+              controller: controller,
+            ),
+            child: child,
+          );
+        } else {
+          return child;
+        }
+      },
+      child: widget.pimpedWidgetBuilder(context, controller),
+    );
+  }
+/*
   static Future playAnimation(BuildContext context, TickerProvider vsync) {
     PimpedButtonState state = context.ancestorStateOfType(const TypeMatcher<PimpedButtonState>());
 
@@ -41,7 +79,7 @@ class PimpedButtonState extends State<PimpedButton> {
 
     AnimationController controller = AnimationController(vsync: vsync, duration: state.widget.duration);
 
-    double progress = 0.0;
+    int seed = Random().nextInt(100000);
     OverlayEntry entry = OverlayEntry(
       builder: (context) {
         return Positioned.fromRect(
@@ -50,7 +88,8 @@ class PimpedButtonState extends State<PimpedButton> {
               child: CustomPaint(
                 painter: PimpPainter(
                   particle: state.widget.particle,
-                  progress: progress,
+                  seed: seed,
+                  controller: controller,
                 ),
               ),
             ));
@@ -59,11 +98,6 @@ class PimpedButtonState extends State<PimpedButton> {
 
     Overlay.of(context).insert(entry);
 
-    controller.addListener(() {
-      progress = controller.value;
-      entry.markNeedsBuild();
-    });
-
     controller.addStatusListener((status) {
       if (status == AnimationStatus.dismissed || status == AnimationStatus.completed) {
         entry.remove();
@@ -71,26 +105,28 @@ class PimpedButtonState extends State<PimpedButton> {
     });
 
     controller.forward();
-  }
+  }*/
 }
 
 class PimpPainter extends CustomPainter {
-  PimpPainter({this.particle, this.progress});
+  PimpPainter({this.particle, this.seed, this.controller}) : super(repaint: controller);
 
-  final double progress;
   final Particle particle;
+  final int seed;
+  final AnimationController controller;
 
   @override
   void paint(Canvas canvas, Size size) {
-    particle.paint(canvas, size, progress);
+
+    particle.paint(canvas, size, controller.value, seed);
   }
 
   @override
-  bool shouldRepaint(PimpPainter oldDelegate) => oldDelegate.progress != progress;
+  bool shouldRepaint(PimpPainter oldDelegate) => true;
 }
 
 abstract class Particle {
-  void paint(Canvas canvas, Size size, double progress);
+  void paint(Canvas canvas, Size size, double progress, int seed);
 }
 
 class PoppingCircle extends Particle {
@@ -101,7 +137,7 @@ class PoppingCircle extends Particle {
   final double radius = 3.0;
 
   @override
-  void paint(Canvas canvas, Size size, double progress) {
+  void paint(Canvas canvas, Size size, double progress, seed) {
     if (progress < 0.5) {
       canvas.drawCircle(
           Offset.zero,
@@ -119,7 +155,7 @@ class PoppingCircle extends Particle {
           width: 2.0,
         ),
         initialRotation: pi / 4,
-      ).paint(canvas, size, progress);
+      ).paint(canvas, size, progress, seed);
     }
   }
 }
@@ -137,11 +173,11 @@ class Mirror extends Particle {
   Mirror({this.child, this.initialRotation, this.numberOfParticles});
 
   @override
-  void paint(Canvas canvas, Size size, double progress) {
+  void paint(Canvas canvas, Size size, double progress, seed) {
     canvas.save();
     canvas.rotate(initialRotation);
     for (int i = 0; i < numberOfParticles; i++) {
-      child.paint(canvas, size, progress);
+      child.paint(canvas, size, progress, seed);
       canvas.rotate(pi / (numberOfParticles / 2));
     }
     canvas.restore();
@@ -156,7 +192,7 @@ class FadingRect extends Particle {
   FadingRect({this.color, this.width, this.height});
 
   @override
-  void paint(Canvas canvas, Size size, double progress) {
+  void paint(Canvas canvas, Size size, double progress, seed) {
     canvas.drawRect(Rect.fromLTWH(-width / 2, height, width, height), Paint()..color = color.withOpacity(1 - progress));
   }
 }
@@ -168,7 +204,7 @@ class FadingCircle extends Particle {
   FadingCircle({this.color, this.radius});
 
   @override
-  void paint(Canvas canvas, Size size, double progress) {
+  void paint(Canvas canvas, Size size, double progress, seed) {
     canvas.drawCircle(Offset.zero, radius, Paint()..color = color.withOpacity(1 - progress));
   }
 }
@@ -181,10 +217,10 @@ class PositionedParticle extends Particle {
   final Offset position;
 
   @override
-  void paint(Canvas canvas, Size size, double progress) {
+  void paint(Canvas canvas, Size size, double progress, seed) {
     canvas.save();
     canvas.translate(position.dx, position.dy);
-    child.paint(canvas, size, progress);
+    child.paint(canvas, size, progress, seed);
     canvas.restore();
   }
 }
@@ -197,10 +233,10 @@ class MovingPositionedParticle extends Particle {
   final Tween<Offset> offsetTween;
 
   @override
-  void paint(Canvas canvas, Size size, double progress) {
+  void paint(Canvas canvas, Size size, double progress, seed) {
     canvas.save();
     canvas.translate(offsetTween.lerp(progress).dx, offsetTween.lerp(progress).dy);
-    child.paint(canvas, size, progress);
+    child.paint(canvas, size, progress, seed);
     canvas.restore();
   }
 }
@@ -213,9 +249,9 @@ class IntervalParticle extends Particle {
   IntervalParticle({this.child, this.interval});
 
   @override
-  void paint(Canvas canvas, Size size, double progress) {
+  void paint(Canvas canvas, Size size, double progress, seed) {
     if (progress < interval.begin || progress > interval.end) return;
-    child.paint(canvas, size, interval.transform(progress));
+    child.paint(canvas, size, interval.transform(progress), seed);
   }
 }
 
@@ -226,25 +262,23 @@ class ContainerParticle extends Particle {
   ContainerParticle({this.children});
 
   @override
-  void paint(Canvas canvas, Size size, double progress) {
+  void paint(Canvas canvas, Size size, double progress, seed) {
     for (Particle particle in children) {
-      particle.paint(canvas, size, progress);
+      particle.paint(canvas, size, progress, seed);
     }
   }
 }
 
 class CenterParticle extends Particle {
-
   final Particle child;
 
   CenterParticle({this.child});
+
   @override
-  void paint(Canvas canvas, Size size, double progress) {
+  void paint(Canvas canvas, Size size, double progress, seed) {
     canvas.save();
     canvas.translate(size.width / 2, size.height / 2);
-    child.paint(canvas, size, progress);
+    child.paint(canvas, size, progress, seed);
     canvas.restore();
-
   }
-
 }
