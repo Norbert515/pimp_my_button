@@ -81,7 +81,7 @@ class PimpPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     canvas.translate(size.width / 2, size.height / 2);
 
-    drawPoppingCircle(canvas, Offset(40.0, 100.0));
+    PoppingCircle(Offset(40.0, 100.0)).paint(canvas, size, progress);
     paintFlyingRect(canvas, Offset(10.0, 50.0), calcRotation(Offset(0.0,0.0), Offset(10.0, 50.0)));
     for(int i = 0; i < 4; i++) {
       paintSection(canvas, Size(size.width / 2, size.height / 2));
@@ -107,25 +107,32 @@ class PimpPainter extends CustomPainter {
     canvas.drawRect(Rect.fromLTWH(start.dx, start.dy + (progress * 30.0), 5.0, 10.0), Paint()..color = Colors.black);
     canvas.restore();
   }
-  
-  void drawPoppingCircle(Canvas canvas, Offset position) {
-    canvas.drawCircle(position, 3.0 + (progress * 8), Paint()..color = Colors.yellow);
-  }
+
 
   @override
   bool shouldRepaint(PimpPainter oldDelegate) => oldDelegate.progress != progress;
 }
 
+
 abstract class Particle {
-
-  Particle({this.child});
-
-  final Particle child;
+  void paint(Canvas canvas, Size size, double progress);
+}
 
 
-  void paint(Canvas canvas, Size size) {
+class PoppingCircle extends Particle {
 
+  final Offset position;
+
+  PoppingCircle(this.position);
+
+
+  @override
+  void paint(Canvas canvas, Size size, double progress) {
+    canvas.drawCircle(position, 3.0 + (progress * 8), Paint()..color = Colors.yellow);
   }
 
-  void paintParticle(Canvas canvas, Size size);
 }
+
+
+
+
