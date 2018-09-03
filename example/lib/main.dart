@@ -58,7 +58,7 @@ class DemoParticle extends Particle {
           child: PositionedParticle(
             position: Offset(40.0, 100.0),
             child: PoppingCircle(
-              color: Colors.black,
+              color: Colors.deepOrangeAccent,
             ),
           )),
       IntervalParticle(
@@ -66,7 +66,7 @@ class DemoParticle extends Particle {
           child: PositionedParticle(
             position: Offset(-30.0, -40.0),
             child: PoppingCircle(
-              color: Colors.black,
+              color: Colors.green,
             ),
           )),
       IntervalParticle(
@@ -74,7 +74,7 @@ class DemoParticle extends Particle {
           child: PositionedParticle(
             position: Offset(50.0, -70.0),
             child: PoppingCircle(
-              color: Colors.black,
+              color: Colors.indigo,
             ),
           )),
       IntervalParticle(
@@ -82,7 +82,7 @@ class DemoParticle extends Particle {
           child: PositionedParticle(
             position: Offset(-50.0, 80.0),
             child: PoppingCircle(
-              color: Colors.black,
+              color: Colors.teal,
             ),
           )),
       Mirror(
