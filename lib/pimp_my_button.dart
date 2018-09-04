@@ -282,3 +282,39 @@ class CenterParticle extends Particle {
     canvas.restore();
   }
 }
+
+class RotationParticle extends Particle {
+
+  final Particle child;
+
+  final double rotation;
+
+  RotationParticle({this.child, this.rotation});
+
+  @override
+  void paint(Canvas canvas, Size size, double progress, int seed) {
+    canvas.save();
+    canvas.rotate(rotation);
+    child.paint(canvas, size, progress, seed);
+    canvas.restore();
+  }
+
+}
+
+class AnimatingRotationParticle extends Particle {
+
+  final Particle child;
+
+  final Tween<double> rotation;
+
+  AnimatingRotationParticle({this.child, double begin, double end}) : rotation = Tween<double>(begin: begin, end: end);
+
+  @override
+  void paint(Canvas canvas, Size size, double progress, int seed) {
+    canvas.save();
+    canvas.rotate(rotation.lerp(progress));
+    child.paint(canvas, size, progress, seed);
+    canvas.restore();
+  }
+
+}
