@@ -44,7 +44,7 @@ class PimpedButtonState extends State<PimpedButton> with SingleTickerProviderSta
     seed = random.nextInt(100000000);
     controller = AnimationController(vsync: this, duration: widget.duration);
     controller.addStatusListener((status) {
-      if (status == AnimationStatus.forward ||  status == AnimationStatus.reverse) {
+      if (status == AnimationStatus.forward || status == AnimationStatus.reverse) {
         seed = random.nextInt(10000000);
       }
     });
@@ -55,7 +55,7 @@ class PimpedButtonState extends State<PimpedButton> with SingleTickerProviderSta
     return AnimatedBuilder(
       animation: controller,
       builder: (context, child) {
-        if(controller.status == AnimationStatus.forward || controller.status == AnimationStatus.reverse) {
+        if (controller.status == AnimationStatus.forward || controller.status == AnimationStatus.reverse) {
           return CustomPaint(
             painter: PimpPainter(
               particle: widget.particle,
@@ -117,7 +117,7 @@ class PimpPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-
+    canvas.translate(size.width / 2, size.height / 2);
     particle.paint(canvas, size, controller.value, seed);
   }
 
@@ -147,7 +147,7 @@ class PoppingCircle extends Particle {
             ..style = PaintingStyle.stroke
             ..strokeWidth = 5.0 - progress * 2);
     } else {
-      Mirror(
+      CircleMirror(
         numberOfParticles: 4,
         child: FadingRect(
           color: color,
@@ -160,52 +160,113 @@ class PoppingCircle extends Particle {
   }
 }
 
-/// Mirrors a [Particle] four times.
+typedef ParticleBuilder = Particle Function(int index);
+
+/// Mirrors a given particle around a circle.
 ///
-/// Steps are in 90 degrees - pi / 2 radian
-class Mirror extends Particle {
-  final Particle child;
+/// When using the default constructor you specify one [Particle], this particle
+/// is going to be used on its own, this implies that
+/// all mirrored particles are identical (expect for the rotation around the circle)
+class CircleMirror extends Particle {
+  final ParticleBuilder particleBuilder;
 
   final double initialRotation;
 
   final int numberOfParticles;
 
-  Mirror({this.child, this.initialRotation, this.numberOfParticles});
+  CircleMirror.builder({this.particleBuilder, this.initialRotation, this.numberOfParticles});
+
+  CircleMirror({Particle child, this.initialRotation, this.numberOfParticles}) : this.particleBuilder = ((index) => child);
 
   @override
   void paint(Canvas canvas, Size size, double progress, seed) {
     canvas.save();
     canvas.rotate(initialRotation);
     for (int i = 0; i < numberOfParticles; i++) {
-      child.paint(canvas, size, progress, seed);
+      particleBuilder(i).paint(canvas, size, progress, seed);
       canvas.rotate(pi / (numberOfParticles / 2));
     }
     canvas.restore();
   }
 }
 
-class FadingRect extends Particle {
-  final Color color;
-  final double width;
-  final double height;
+/// Mirrors a given particle around a circle.
+///
+/// When using the default constructor you specify one [Particle], this particle
+/// is going to be used on its own, this implies that
+/// all mirrored particles are identical (expect for the rotation around the circle)
+class RectangleMirror extends Particle {
+  final ParticleBuilder particleBuilder;
 
-  FadingRect({this.color, this.width, this.height});
+  final double initialRotation;
+
+  final int numberOfParticles;
+
+
+  RectangleMirror.builder({this.particleBuilder, this.initialRotation, this.numberOfParticles});
+
+  RectangleMirror({Particle child, this.initialRotation, this.numberOfParticles}) : this.particleBuilder = ((index) => child);
 
   @override
   void paint(Canvas canvas, Size size, double progress, seed) {
-    canvas.drawRect(Rect.fromLTWH(-width / 2, height, width, height), Paint()..color = color.withOpacity(1 - progress));
+    canvas.save();
+    double totalLength = size.width * 2 + size.height * 2;
+    double distanceBetweenParticles = totalLength / numberOfParticles;
+
+    bool onHorizontalAxis = true;
+    int side = 0;
+
+    double currentDistance = 0.0;
+    assert((distanceBetweenParticles * numberOfParticles).round() == totalLength.round());
+
+
+    for (int i = 0; i < numberOfParticles; i++) {
+
+      currentDistance += distanceBetweenParticles;
+      while(true) {
+        if(onHorizontalAxis? currentDistance > size.width : currentDistance > size.height) {
+        //  canvas.rotate(pi / 2);
+          currentDistance -= onHorizontalAxis? size.width : size.height;
+          onHorizontalAxis = !onHorizontalAxis;
+          side ++;
+        } else {
+          if(side == 0) {
+            assert(onHorizontalAxis);
+            moveTo(canvas, size, currentDistance, 0.0, (){
+              particleBuilder(i).paint(canvas, size, progress, seed);
+            });
+          } else if(side == 1) {
+            assert(!onHorizontalAxis);
+            moveTo(canvas, size, size.width, currentDistance, (){
+              particleBuilder(i).paint(canvas, size, progress, seed);
+            });
+          } else if(side == 2) {
+            assert(onHorizontalAxis);
+            moveTo(canvas, size, -currentDistance, size.height, (){
+              particleBuilder(i).paint(canvas, size, progress, seed);
+            });
+          } else if(side == 3) {
+            assert(!onHorizontalAxis);
+            moveTo(canvas, size, 0.0, -currentDistance, (){
+              particleBuilder(i).paint(canvas, size, progress, seed);
+            });
+          }
+          break;
+        }
+      }
+
+
+    }
+
+    canvas.restore();
   }
-}
 
-class FadingCircle extends Particle {
-  final Color color;
-  final double radius;
 
-  FadingCircle({this.color, this.radius});
-
-  @override
-  void paint(Canvas canvas, Size size, double progress, seed) {
-    canvas.drawCircle(Offset.zero, radius, Paint()..color = color.withOpacity(1 - progress));
+  void moveTo(Canvas canvas, Size size, double x, double y, VoidCallback painter) {
+    canvas.save();
+    canvas.translate(x - size.width / 2, y - size.height / 2);
+    painter();
+    canvas.restore();
   }
 }
 
@@ -269,22 +330,8 @@ class ContainerParticle extends Particle {
   }
 }
 
-class CenterParticle extends Particle {
-  final Particle child;
-
-  CenterParticle({this.child});
-
-  @override
-  void paint(Canvas canvas, Size size, double progress, seed) {
-    canvas.save();
-    canvas.translate(size.width / 2, size.height / 2);
-    child.paint(canvas, size, progress, seed);
-    canvas.restore();
-  }
-}
 
 class RotationParticle extends Particle {
-
   final Particle child;
 
   final double rotation;
@@ -298,11 +345,9 @@ class RotationParticle extends Particle {
     child.paint(canvas, size, progress, seed);
     canvas.restore();
   }
-
 }
 
 class AnimatingRotationParticle extends Particle {
-
   final Particle child;
 
   final Tween<double> rotation;
@@ -315,6 +360,68 @@ class AnimatingRotationParticle extends Particle {
     canvas.rotate(rotation.lerp(progress));
     child.paint(canvas, size, progress, seed);
     canvas.restore();
+  }
+}
+
+/// Geometry
+///
+/// These are some basic geometric classes which also fade out as time goes on
+class FadingRect extends Particle {
+  final Color color;
+  final double width;
+  final double height;
+
+  FadingRect({this.color, this.width, this.height});
+
+  @override
+  void paint(Canvas canvas, Size size, double progress, seed) {
+    canvas.drawRect(Rect.fromLTWH(-width / 2, height, width, height), Paint()..color = color.withOpacity(1 - progress));
+  }
+}
+
+class FadingCircle extends Particle {
+  final Color color;
+  final double radius;
+
+  FadingCircle({this.color, this.radius});
+
+  @override
+  void paint(Canvas canvas, Size size, double progress, seed) {
+    canvas.drawCircle(Offset.zero, radius, Paint()..color = color.withOpacity(1 - progress));
+  }
+}
+
+class FadingTriangle extends Particle {
+  /// This controls the shape of the triangle.
+  ///
+  /// Value between 0 and 1
+  final double variation;
+
+  final Color color;
+
+  /// The size of the base side of the triangle.
+  final double baseSize;
+
+  /// This is the factor of how much bigger then length than the width is
+  final double heightToBaseFactor;
+
+  FadingTriangle({this.variation, this.color, this.baseSize, this.heightToBaseFactor});
+
+  @override
+  void paint(Canvas canvas, Size size, double progress, int seed) {
+    Path path = Path();
+    path.moveTo(0.0, 0.0);
+    path.lineTo(baseSize * variation, baseSize * heightToBaseFactor);
+    path.lineTo(baseSize, 0.0);
+    path.close();
+    canvas.drawPath(path, Paint()..color = color);
+  }
+}
+
+class FadingSnake extends Particle {
+  @override
+  void paint(Canvas canvas, Size size, double progress, int seed) {
+    // TODO: implement paint
   }
 
 }
