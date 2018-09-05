@@ -225,7 +225,7 @@ class RectangleMirror extends Particle {
       currentDistance += distanceBetweenParticles;
       while(true) {
         if(onHorizontalAxis? currentDistance > size.width : currentDistance > size.height) {
-         // canvas.rotate(pi / 2);
+          //canvas.rotate(pi / 2);
           currentDistance -= onHorizontalAxis? size.width : size.height;
           onHorizontalAxis = !onHorizontalAxis;
           side ++;
@@ -427,9 +427,13 @@ class FadingSnake extends Particle {
 }
 
 class DebugTest extends Particle {
+
+  final Color color;
+
+  DebugTest(this.color);
   @override
   void paint(Canvas canvas, Size size, double progress, int seed) {
-    canvas.drawRect(Rect.fromLTWH(0.0, 0.0, 10.0, 10.0), Paint()..color = Colors.red);
+    canvas.drawRect(Rect.fromLTWH(0.0, 0.0, 10.0, 10.0), Paint()..color = color);
   }
 
 }

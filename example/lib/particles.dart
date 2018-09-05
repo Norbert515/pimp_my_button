@@ -115,9 +115,13 @@ class RectangleDemoParticle extends Particle {
               color: Colors.teal,
             ),
           )),
-      RectangleMirror(
+      RectangleMirror.builder(
           numberOfParticles: 4,
-          child: DebugTest(),
+          particleBuilder: (int) {
+            return DebugTest(
+                intToColor(int)
+            );
+          },
           // division by 0 is not good ;)
           initialRotation: -pi / randomMirrorOffset),
       CircleMirror.builder(
@@ -144,5 +148,13 @@ class RectangleDemoParticle extends Particle {
 
   double randomOffset(Random random, int range) {
     return range / 2 - random.nextInt(range);
+  }
+
+  Color intToColor(int col) {
+    if(col == 0) return Colors.red;
+    if(col == 1) return Colors.green;
+    if(col == 2) return Colors.orange;
+    if(col == 3) return Colors.blue;
+    return Colors.black;
   }
 }
