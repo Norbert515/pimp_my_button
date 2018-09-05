@@ -71,41 +71,6 @@ class PimpedButtonState extends State<PimpedButton> with SingleTickerProviderSta
       child: widget.pimpedWidgetBuilder(context, controller),
     );
   }
-/*
-  static Future playAnimation(BuildContext context, TickerProvider vsync) {
-    PimpedButtonState state = context.ancestorStateOfType(const TypeMatcher<PimpedButtonState>());
-
-    Rect bounds = _globalBoundingBoxFor(state.context);
-
-    AnimationController controller = AnimationController(vsync: vsync, duration: state.widget.duration);
-
-    int seed = Random().nextInt(100000);
-    OverlayEntry entry = OverlayEntry(
-      builder: (context) {
-        return Positioned.fromRect(
-            rect: bounds.inflate(bounds.width),
-            child: IgnorePointer(
-              child: CustomPaint(
-                painter: PimpPainter(
-                  particle: state.widget.particle,
-                  seed: seed,
-                  controller: controller,
-                ),
-              ),
-            ));
-      },
-    );
-
-    Overlay.of(context).insert(entry);
-
-    controller.addStatusListener((status) {
-      if (status == AnimationStatus.dismissed || status == AnimationStatus.completed) {
-        entry.remove();
-      }
-    });
-
-    controller.forward();
-  }*/
 }
 
 class PimpPainter extends CustomPainter {
@@ -191,7 +156,7 @@ class PoppingCircle extends Particle {
     } else {
       CircleMirror(
         numberOfParticles: 4,
-        child: MovingPositionedParticle(
+        child: AnimatedPositionedParticle(
           begin: Offset(0.0, 5.0),
           end: Offset(0.0, 15.0),
           child: FadingRect(
@@ -306,7 +271,6 @@ class RectangleMirror extends Particle {
     canvas.restore();
   }
 
-
   void moveTo(Canvas canvas, Size size, int side, double x, double y, VoidCallback painter) {
     canvas.save();
     canvas.translate(x, y);
@@ -316,6 +280,7 @@ class RectangleMirror extends Particle {
   }
 }
 
+/// Offsets a child by a given [Offset]
 class PositionedParticle extends Particle {
   PositionedParticle({this.position, this.child});
 
@@ -331,9 +296,9 @@ class PositionedParticle extends Particle {
     canvas.restore();
   }
 }
-
-class MovingPositionedParticle extends Particle {
-  MovingPositionedParticle({Offset begin, Offset end, this.child}) : offsetTween = Tween<Offset>(begin: begin, end: end);
+/// Animates a childs position based on a Tween<Offset>
+class AnimatedPositionedParticle extends Particle {
+  AnimatedPositionedParticle({Offset begin, Offset end, this.child}) : offsetTween = Tween<Offset>(begin: begin, end: end);
 
   final Particle child;
 
@@ -348,6 +313,12 @@ class MovingPositionedParticle extends Particle {
   }
 }
 
+/// Specifies an [Interval] for its child.
+///
+/// Instead of applying a curve the the input parameters of the paint method,
+/// apply it with this Particle.
+///
+/// If you want you child to only animate from 0.0 - 0.5 (relative), specify an [Interval] with those values.
 class IntervalParticle extends Particle {
   final Interval interval;
 
@@ -376,7 +347,9 @@ class ContainerParticle extends Particle {
   }
 }
 
-
+/// A particle which rotates the child.
+///
+/// Does not animate.
 class RotationParticle extends Particle {
   final Particle child;
 
@@ -393,12 +366,13 @@ class RotationParticle extends Particle {
   }
 }
 
-class AnimatingRotationParticle extends Particle {
+/// A particle which rotates a child along a given [Tween]
+class AnimatedRotationParticle extends Particle {
   final Particle child;
 
   final Tween<double> rotation;
 
-  AnimatingRotationParticle({this.child, double begin, double end}) : rotation = Tween<double>(begin: begin, end: end);
+  AnimatedRotationParticle({this.child, double begin, double end}) : rotation = Tween<double>(begin: begin, end: end);
 
   @override
   void paint(Canvas canvas, Size size, double progress, int seed) {
@@ -411,7 +385,14 @@ class AnimatingRotationParticle extends Particle {
 
 /// Geometry
 ///
-/// These are some basic geometric classes which also fade out as time goes on
+/// These are some basic geometric classes which also fade out as time goes on.
+/// Each primitive should draw itself at the origin. If the orientation matters it should be directed to the top
+/// (negative y)
+///
+///
+///
+
+/// A rectangle which also fades out over time.
 class FadingRect extends Particle {
   final Color color;
   final double width;
@@ -424,7 +405,7 @@ class FadingRect extends Particle {
     canvas.drawRect(Rect.fromLTWH(0.0, 0.0, width, height), Paint()..color = color.withOpacity(1 - progress));
   }
 }
-
+/// A circle which fades out over time
 class FadingCircle extends Particle {
   final Color color;
   final double radius;
@@ -436,7 +417,7 @@ class FadingCircle extends Particle {
     canvas.drawCircle(Offset.zero, radius, Paint()..color = color.withOpacity(1 - progress));
   }
 }
-
+/// A triangle which also fades out over time
 class FadingTriangle extends Particle {
   /// This controls the shape of the triangle.
   ///
@@ -460,10 +441,13 @@ class FadingTriangle extends Particle {
     path.lineTo(baseSize * variation, baseSize * heightToBaseFactor);
     path.lineTo(baseSize, 0.0);
     path.close();
-    canvas.drawPath(path, Paint()..color = color);
+    canvas.drawPath(path, Paint()..color = color.withOpacity(1 - progress));
   }
 }
 
+/// An ugly looking "snake"
+///
+/// See for yourself
 class FadingSnake extends Particle {
 
   final double width;

@@ -37,7 +37,7 @@ class DemoParticle extends Particle {
       ]),
       CircleMirror(
           numberOfParticles: 6,
-          child: MovingPositionedParticle(
+          child: AnimatedPositionedParticle(
             begin: Offset(0.0, 20.0),
             end: Offset(0.0, 60.0),
             child: FadingRect(width: 5.0, height: 15.0, color: Colors.pink),
@@ -48,7 +48,7 @@ class DemoParticle extends Particle {
           numberOfParticles: 6,
           particleBuilder: (index) {
             return IntervalParticle(
-                child: MovingPositionedParticle(
+                child: AnimatedPositionedParticle(
                   begin: Offset(0.0, 30.0),
                   end: Offset(0.0, 50.0 + (7.5 - 15 * random.nextDouble())),
                   child: FadingTriangle(
@@ -107,7 +107,7 @@ class RectangleDemoParticle extends Particle {
       RectangleMirror.builder(
           numberOfParticles: 13,
           particleBuilder: (int) {
-            return MovingPositionedParticle(
+            return AnimatedPositionedParticle(
               begin: Offset(0.0, -10.0),
               end: Offset(0.0, -60.0),
               child: FadingRect(width: 5.0, height: 15.0, color: intToColor(int)),
@@ -119,7 +119,7 @@ class RectangleDemoParticle extends Particle {
           numberOfParticles: 6,
           particleBuilder: (index) {
             return IntervalParticle(
-                child: MovingPositionedParticle(
+                child: AnimatedPositionedParticle(
                   begin: Offset(0.0, 30.0),
                   end: Offset(0.0, 50.0 + (7.5 - 15 * random.nextDouble())),
                   child: FadingTriangle(
@@ -189,7 +189,7 @@ class Rectangle2DemoParticle extends Particle {
       RectangleMirror.builder(
           numberOfParticles: 6,
           particleBuilder: (int) {
-            return MovingPositionedParticle(
+            return AnimatedPositionedParticle(
               begin: Offset(0.0, -10.0),
               end: Offset(0.0, -60.0),
               child: FadingRect(width: 5.0, height: 15.0, color: intToColor(int)),

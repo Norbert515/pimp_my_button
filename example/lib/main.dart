@@ -71,15 +71,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             ),
           ),
           Center(
-            child: SizedBox(
-              width: 50.0,
-              height: 50.0,
-              child: CustomPaint(
-                painter: DebugPainter(),
-              ),
-            ),
-          ),
-          Center(
             child: PimpedButton(
               particle: Rectangle2DemoParticle(),
               pimpedWidgetBuilder: (context, controller) {
@@ -97,13 +88,3 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   }
 }
 
-class DebugPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-   // FadingSnake().paint(canvas, size, 0.0, 0);
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => true;
-
-}
