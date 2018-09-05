@@ -129,6 +129,48 @@ abstract class Particle {
   void paint(Canvas canvas, Size size, double progress, int seed);
 }
 
+
+class FourRandomSlotParticle extends Particle {
+
+  final List<Particle> children;
+
+  final double relativeDistanceToMiddle;
+
+  FourRandomSlotParticle({this.children, this.relativeDistanceToMiddle = 2.0});
+
+
+  @override
+  void paint(Canvas canvas, Size size, double progress, int seed) {
+    Random random = Random(seed);
+    int side = 0;
+    for(Particle particle in children) {
+      PositionedParticle(
+        position: sideToOffset(side, size, random) * relativeDistanceToMiddle,
+        child: particle,
+      ).paint(canvas, size, progress, seed);
+      side ++;
+    }
+  }
+
+  Offset sideToOffset(int side, Size size, Random random) {
+    if(side == 0) {
+      return Offset(-random.nextDouble() * (size.width / 2), -random.nextDouble() * (size.height / 2));
+    } else if(side == 1) {
+      return Offset(random.nextDouble() * (size.width / 2), -random.nextDouble() * (size.height / 2));
+    } else if(side == 2) {
+      return Offset(random.nextDouble() * (size.width / 2), random.nextDouble() * (size.height / 2));
+    } else if(side == 3) {
+      return Offset(-random.nextDouble() * (size.width / 2), random.nextDouble() * (size.height / 2));
+    } else {
+      throw Exception();
+    }
+  }
+
+  double randomOffset(Random random, int range) {
+    return range / 2 - random.nextInt(range);
+  }
+
+}
 class PoppingCircle extends Particle {
   final Color color;
 
@@ -149,10 +191,14 @@ class PoppingCircle extends Particle {
     } else {
       CircleMirror(
         numberOfParticles: 4,
-        child: FadingRect(
-          color: color,
-          height: 7.0,
-          width: 2.0,
+        child: MovingPositionedParticle(
+          begin: Offset(0.0, 5.0),
+          end: Offset(0.0, 15.0),
+          child: FadingRect(
+            color: color,
+            height: 7.0,
+            width: 2.0,
+          )
         ),
         initialRotation: pi / 4,
       ).paint(canvas, size, progress, seed);
@@ -216,44 +262,43 @@ class RectangleMirror extends Particle {
     bool onHorizontalAxis = true;
     int side = 0;
 
-    double currentDistance = 0.0;
     assert((distanceBetweenParticles * numberOfParticles).round() == totalLength.round());
 
+    canvas.translate(-size.width /2, -size.height / 2);
 
+    double currentDistance = 0.0;
     for (int i = 0; i < numberOfParticles; i++) {
-
-      currentDistance += distanceBetweenParticles;
       while(true) {
         if(onHorizontalAxis? currentDistance > size.width : currentDistance > size.height) {
-          //canvas.rotate(pi / 2);
           currentDistance -= onHorizontalAxis? size.width : size.height;
           onHorizontalAxis = !onHorizontalAxis;
-          side ++;
+          side = (++side) % 4;
         } else {
           if(side == 0) {
             assert(onHorizontalAxis);
-            moveTo(canvas, size, currentDistance, 0.0, (){
+            moveTo(canvas, size, 0, currentDistance, 0.0, (){
               particleBuilder(i).paint(canvas, size, progress, seed);
             });
           } else if(side == 1) {
             assert(!onHorizontalAxis);
-            moveTo(canvas, size, size.width, currentDistance, (){
+            moveTo(canvas, size, 1, size.width, currentDistance, (){
               particleBuilder(i).paint(canvas, size, progress, seed);
             });
           } else if(side == 2) {
             assert(onHorizontalAxis);
-            moveTo(canvas, size, currentDistance, size.height, (){
+            moveTo(canvas, size, 2, size.width - currentDistance, size.height, (){
               particleBuilder(i).paint(canvas, size, progress, seed);
             });
           } else if(side == 3) {
             assert(!onHorizontalAxis);
-            moveTo(canvas, size, 0.0, currentDistance, (){
+            moveTo(canvas, size, 3, 0.0, size.height - currentDistance, (){
               particleBuilder(i).paint(canvas, size, progress, seed);
             });
           }
           break;
         }
       }
+      currentDistance += distanceBetweenParticles;
 
 
     }
@@ -262,9 +307,10 @@ class RectangleMirror extends Particle {
   }
 
 
-  void moveTo(Canvas canvas, Size size, double x, double y, VoidCallback painter) {
+  void moveTo(Canvas canvas, Size size, int side, double x, double y, VoidCallback painter) {
     canvas.save();
-    canvas.translate(x - size.width / 2, y - size.height / 2);
+    canvas.translate(x, y);
+    canvas.rotate(-atan2(size.width / 2 - x, size.height / 2 - y));
     painter();
     canvas.restore();
   }
@@ -375,7 +421,7 @@ class FadingRect extends Particle {
 
   @override
   void paint(Canvas canvas, Size size, double progress, seed) {
-    canvas.drawRect(Rect.fromLTWH(-width / 2, height, width, height), Paint()..color = color.withOpacity(1 - progress));
+    canvas.drawRect(Rect.fromLTWH(0.0, 0.0, width, height), Paint()..color = color.withOpacity(1 - progress));
   }
 }
 
@@ -419,21 +465,39 @@ class FadingTriangle extends Particle {
 }
 
 class FadingSnake extends Particle {
-  @override
-  void paint(Canvas canvas, Size size, double progress, int seed) {
-    // TODO: implement paint
-  }
 
-}
-
-class DebugTest extends Particle {
+  final double width;
+  final double segmentLength;
+  final int segments;
+  final double curvyness;
 
   final Color color;
 
-  DebugTest(this.color);
+  FadingSnake({this.width, this.segmentLength, this.segments, this.curvyness, this.color});
+
   @override
   void paint(Canvas canvas, Size size, double progress, int seed) {
-    canvas.drawRect(Rect.fromLTWH(0.0, 0.0, 10.0, 10.0), Paint()..color = color);
+    canvas.save();
+    canvas.rotate(pi / 6);
+    Path path = Path();
+     /* for(int i = 0; i < segments; i++) {
+        path.lineTo(curvyness * i, segmentLength * (i +1));
+        path.lineTo(curvyness * (i + 1), segmentLength * (i + 1));
+      }
+      for(int i = segments - 1; i >= 0; i--) {
+        path.lineTo(curvyness * (i + 1), segmentLength * i - curvyness);
+        path.lineTo(curvyness * i, segmentLength * i - curvyness);
+    }*/
+    for(int i = 0; i < segments; i++) {
+      path.quadraticBezierTo(curvyness * i, segmentLength * (i +1), curvyness * (i + 1), segmentLength * (i + 1));
+    }
+    for(int i = segments - 1; i >= 0; i--) {
+      path.quadraticBezierTo(curvyness * (i + 1), segmentLength * i - curvyness, curvyness * i, segmentLength * i - curvyness);
+    }
+    path.close();
+    canvas.drawPath(path, Paint()..color = color);
+    canvas.restore();
+
   }
 
 }
