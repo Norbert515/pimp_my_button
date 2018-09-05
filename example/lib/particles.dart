@@ -117,11 +117,7 @@ class RectangleDemoParticle extends Particle {
           )),
       RectangleMirror(
           numberOfParticles: 4,
-          child: MovingPositionedParticle(
-            begin: Offset(0.0, 20.0),
-            end: Offset(0.0, 60.0),
-            child: FadingRect(width: 5.0, height: 15.0, color: Colors.pink),
-          ),
+          child: DebugTest(),
           // division by 0 is not good ;)
           initialRotation: -pi / randomMirrorOffset),
       CircleMirror.builder(
