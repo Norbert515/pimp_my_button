@@ -1,7 +1,3 @@
-# pimp_my_button
-
-A package which adds a much needed feature to all pressable objects.
-
 # Showcase
 ![pimp_my_button-showcase](media/pimp_my_gif.gif "pimp_my_button-showcase")
 
@@ -16,14 +12,14 @@ A package which adds a much needed feature to all pressable objects.
 The basic setup looks like this:
 
 ```
-    PimpedButton(
-      particle: DemoParticle(),
-      pimpedWidgetBuilder: (context, controller) {
-        return FloatingActionButton(onPressed: () {
-          controller.forward(from: 0.0);
-        },);
-      },
-    );
+PimpedButton(
+  particle: DemoParticle(),
+  pimpedWidgetBuilder: (context, controller) {
+    return FloatingActionButton(onPressed: () {
+      controller.forward(from: 0.0);
+    },);
+  },
+);
 ```
 The `pimpedIwdgetBuilder` uses a builder which besides providing a new context, also provides an `AnimationController`.
 When your button is pressed call this code:
@@ -40,6 +36,7 @@ The particle specified in the `PimpedButton` controlls what the animation looks 
 We'll walk through how to build a `Particle` yourself, step by step. 
 
 Here is what were are going to build:
+
 ![fab](media/fab.gif "fab")
 
 
@@ -77,7 +74,7 @@ The next interesting particle is the `CircleMirror` and `RectangeMirror`.
         initialRotation: -pi / randomMirrorOffset),
 ```
 This mirrors its particle around the middle point in a circular shape.
-In this case you provide one `Particle` which is going to be drawn multiple times, this means it's going to look
+In this case you provide one `Particle` which is going to be drawn multiple times, thus looking
 identical. If you want different particles (or the same with randomized values), use the `CircleMirror.builder`.
 
 At the bottom of the hirarchy is the `FadingRect`, all it does is drawing a rectangle which fades out over time. 
@@ -128,10 +125,14 @@ class DemoParticle extends Particle {
 
 # Notes
 
-Some particles worth checking out:
+## Some particles worth checking out:
 - `IntervalParticle`, applies an interval and/or curve to the child.
 - `FourRandomSlotParticle`, positions 4 children on the different sections.
 - `PoppingCircle`, pretty popping circle
+
+## Check out other demo particles:
+https://github.com/Norbert515/pimp_my_button/blob/master/example/lib/particles.dart
+
 
 
 You are not restricted to use the particles in the context of "Pimp my button", the particles can be drawn on any regular canvas.
