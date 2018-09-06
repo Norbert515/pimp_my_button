@@ -48,18 +48,19 @@ class PimpedButtonState extends State<PimpedButton> with SingleTickerProviderSta
     return AnimatedBuilder(
       animation: controller,
       builder: (context, child) {
+        bool shouldPaint = false;
         if (controller.status == AnimationStatus.forward || controller.status == AnimationStatus.reverse) {
-          return CustomPaint(
-            painter: PimpPainter(
-              particle: widget.particle,
-              seed: seed,
-              controller: controller,
-            ),
-            child: child,
-          );
-        } else {
-          return child;
+          shouldPaint = true;
         }
+        return CustomPaint(
+          painter: PimpPainter(
+            particle: widget.particle,
+            seed: seed,
+            controller: controller,
+            shouldPaint: shouldPaint
+          ),
+          child: child,
+        );
       },
       child: widget.pimpedWidgetBuilder(context, controller),
     );
@@ -67,20 +68,23 @@ class PimpedButtonState extends State<PimpedButton> with SingleTickerProviderSta
 }
 
 class PimpPainter extends CustomPainter {
-  PimpPainter({this.particle, this.seed, this.controller}) : super(repaint: controller);
+  PimpPainter({this.particle, this.seed, this.controller, this.shouldPaint}) : super(repaint: controller);
 
   final Particle particle;
   final int seed;
   final AnimationController controller;
+  final bool shouldPaint;
 
   @override
   void paint(Canvas canvas, Size size) {
-    canvas.translate(size.width / 2, size.height / 2);
-    particle.paint(canvas, size, controller.value, seed);
+    if(shouldPaint) {
+      canvas.translate(size.width / 2, size.height / 2);
+      particle.paint(canvas, size, controller.value, seed);
+    }
   }
 
   @override
-  bool shouldRepaint(PimpPainter oldDelegate) => true;
+  bool shouldRepaint(PimpPainter oldDelegate) => shouldPaint;
 }
 
 abstract class Particle {
