@@ -147,8 +147,7 @@ class DemoParticle extends Particle {
 - `PoppingCircle`, pretty popping circle
 
 ### Check out other demo particles:
-https://github.com/Norbert515/pimp_my_button/blob/master/example/lib/particles.dart
-
+https://github.com/Norbert515/pimp_my_button/blob/master/lib/src/demo_particles.dart
 
 ### You are not restricted to use the particles in the context of "Pimp my button", the particles can be drawn on any regular canvas.
 
