@@ -40,7 +40,7 @@ The particle specified in the `PimpedButton` controlls what the animation looks 
 We'll walk through how to build a `Particle` yourself, step by step. 
 
 Here is what were are going to build:
-Insert GIF
+![fab](media/fab.gif "fab")
 
 
 Each particle has to extend `Particle` and override this method:
