@@ -37,7 +37,7 @@ PimpedButton(
   },
 );
 ```
-The `pimpedIwdgetBuilder` uses a builder which besides providing a new context, also provides an `AnimationController`.
+The `pimpedWidgetBuilder` uses a builder which besides providing a new context, also provides an `AnimationController`.
 When your button is pressed call this code:
 
 ```
