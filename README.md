@@ -8,6 +8,9 @@
 - A lot of premade particles
 
 # Installation
+
+I will publish this package on pub if people enjoy it. So leave a star if you do ;)
+
 ```
 dependencies:
   pimp_my_button:
@@ -18,6 +21,7 @@ run packages get and import it
 ```
 import 'package:pimp_my_button/pimp_my_button.dart';
 ```
+**If you are not able to import it, restart your IDE see: https://github.com/flutter/flutter/issues/17016**
 
 # Basics
 
