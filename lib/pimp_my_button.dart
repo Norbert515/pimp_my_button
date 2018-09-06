@@ -1,17 +1,10 @@
 library pimp_my_button;
-
-import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 
-// The bounding box for context in global coordinates.
-Rect _globalBoundingBoxFor(BuildContext context) {
-  final RenderBox box = context.findRenderObject();
-  assert(box != null && box.hasSize);
-  return box.localToGlobal(Offset.zero) & box.size;
-}
-
 typedef PimpedWidgetBuilder = Widget Function(BuildContext context, AnimationController controller);
+
+typedef ParticleBuilder = Particle Function(int index);
 
 class PimpedButton extends StatefulWidget {
   final PimpedWidgetBuilder pimpedWidgetBuilder;
@@ -204,8 +197,6 @@ class Firework extends Particle {
   }
 
 }
-
-typedef ParticleBuilder = Particle Function(int index);
 
 /// Mirrors a given particle around a circle.
 ///

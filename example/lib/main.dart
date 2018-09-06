@@ -34,17 +34,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       appBar: new AppBar(
         title: new Text(widget.title),
       ),
-      /*  body: new Center(
-        child: PimpedButton(
-          widgetBuilder: (childContext) {
-            return FloatingActionButton(onPressed: () {
-              PimpedButtonState.playAnimation(childContext, this);
-            });
-          },
-          particle: DemoParticle(),
-          duration: Duration(milliseconds: 500),
-        ),
-      ),*/
       body: Center(
         child: Column(
           children: <Widget>[

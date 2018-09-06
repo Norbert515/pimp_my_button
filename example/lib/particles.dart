@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:pimp_my_button/pimp_my_button.dart';
 
-
 Color intToColor(int col) {
   col = col % 5;
   if (col == 0) return Colors.red;
@@ -21,32 +20,7 @@ class DemoParticle extends Particle {
     Random random = Random(seed);
     int randomMirrorOffset = random.nextInt(8) + 1;
     CompositeParticle(children: [
-      FourRandomSlotParticle(children: [
-        IntervalParticle(
-          interval: Interval(0.0, 0.5, curve: Curves.easeIn),
-          child: PoppingCircle(
-            color: Colors.deepOrangeAccent,
-          ),
-        ),
-        IntervalParticle(
-          interval: Interval(0.2, 0.5, curve: Curves.easeIn),
-          child: PoppingCircle(
-            color: Colors.green,
-          ),
-        ),
-        IntervalParticle(
-          interval: Interval(0.4, 0.8, curve: Curves.easeIn),
-          child: PoppingCircle(
-            color: Colors.indigo,
-          ),
-        ),
-        IntervalParticle(
-          interval: Interval(0.5, 1.0, curve: Curves.easeIn),
-          child: PoppingCircle(
-            color: Colors.teal,
-          ),
-        ),
-      ]),
+      Firework(),
       CircleMirror(
           numberOfParticles: 6,
           child: AnimatedPositionedParticle(
@@ -54,7 +28,6 @@ class DemoParticle extends Particle {
             end: Offset(0.0, 60.0),
             child: FadingRect(width: 5.0, height: 15.0, color: Colors.pink),
           ),
-          // division by 0 is not good ;)
           initialRotation: -pi / randomMirrorOffset),
       CircleMirror.builder(
           numberOfParticles: 6,
@@ -62,7 +35,7 @@ class DemoParticle extends Particle {
             return IntervalParticle(
                 child: AnimatedPositionedParticle(
                   begin: Offset(0.0, 30.0),
-                  end: Offset(0.0, 50.0 + (7.5 - 15 * random.nextDouble())),
+                  end: Offset(0.0, 50.0),
                   child: FadingTriangle(
                       baseSize: 6.0 + random.nextDouble() * 4.0,
                       heightToBaseFactor: 1.0 + random.nextDouble(),
@@ -74,13 +47,8 @@ class DemoParticle extends Particle {
                   0.8,
                 ));
           },
-          // division by 0 is not good ;)
           initialRotation: -pi / randomMirrorOffset + 8),
     ]).paint(canvas, size, progress, seed);
-  }
-
-  double randomOffset(Random random, int range) {
-    return range / 2 - random.nextInt(range);
   }
 }
 
@@ -100,7 +68,6 @@ class RectangleDemoParticle extends Particle {
               child: FadingRect(width: 5.0, height: 15.0, color: intToColor(int)),
             );
           },
-          // division by 0 is not good ;)
           initialDistance: -pi / randomMirrorOffset),
       CircleMirror.builder(
           numberOfParticles: 6,
@@ -120,13 +87,8 @@ class RectangleDemoParticle extends Particle {
                   0.8,
                 ));
           },
-          // division by 0 is not good ;)
           initialRotation: -pi / randomMirrorOffset + 8),
     ]).paint(canvas, size, progress, seed);
-  }
-
-  double randomOffset(Random random, int range) {
-    return range / 2 - random.nextInt(range);
   }
 }
 
@@ -146,15 +108,9 @@ class Rectangle2DemoParticle extends Particle {
               child: FadingRect(width: 5.0, height: 15.0, color: intToColor(int)),
             );
           },
-          // division by 0 is not good ;)
           initialDistance: -pi / randomMirrorOffset),
     ]).paint(canvas, size, progress, seed);
   }
-
-  double randomOffset(Random random, int range) {
-    return range / 2 - random.nextInt(range);
-  }
-
 }
 
 class Rectangle3DemoParticle extends Particle {
@@ -168,20 +124,18 @@ class Rectangle3DemoParticle extends Particle {
           numberOfParticles: 6,
           particleBuilder: (int) {
             return AnimatedPositionedParticle(
-              begin: Offset(0.0, -10.0),
-              end: Offset(0.0, -50.0),
-              child: RotationParticle(
-                 rotation: random.nextDouble() * (2 * pi),
-                 child: FadingTriangle(
-                   baseSize: 12.0 + random.nextDouble(),
-                   heightToBaseFactor: 0.8  + random.nextDouble(),
-                   variation: random.nextDouble(),
-                   color: intToColor(int),
-                 ),
-              )
-            );
+                begin: Offset(0.0, -10.0),
+                end: Offset(0.0, -50.0),
+                child: RotationParticle(
+                  rotation: random.nextDouble() * (2 * pi),
+                  child: FadingTriangle(
+                    baseSize: 12.0 + random.nextDouble(),
+                    heightToBaseFactor: 0.8 + random.nextDouble(),
+                    variation: random.nextDouble(),
+                    color: intToColor(int),
+                  ),
+                ));
           },
-          // division by 0 is not good ;)
           initialDistance: -pi / randomMirrorOffset),
       RectangleMirror.builder(
           numberOfParticles: 8,
@@ -193,14 +147,12 @@ class Rectangle3DemoParticle extends Particle {
                   rotation: random.nextDouble() * (2 * pi),
                   child: FadingTriangle(
                     baseSize: 12.0 + random.nextDouble(),
-                    heightToBaseFactor: 0.8  + random.nextDouble(),
+                    heightToBaseFactor: 0.8 + random.nextDouble(),
                     variation: random.nextDouble(),
                     color: intToColor(int),
                   ),
-                )
-            );
+                ));
           },
-          // division by 0 is not good ;)
           initialDistance: 80.0),
     ]).paint(canvas, size, progress, seed);
   }
@@ -208,9 +160,7 @@ class Rectangle3DemoParticle extends Particle {
   double randomOffset(Random random, int range) {
     return range / 2 - random.nextInt(range);
   }
-
 }
-
 
 class ListTileDemoParticle extends Particle {
   @override
@@ -229,7 +179,6 @@ class ListTileDemoParticle extends Particle {
               child: FadingRect(width: 5.0, height: 15.0, color: intToColor(int)),
             );
           },
-          // division by 0 is not good ;)
           initialDistance: 0.0),
       RectangleMirror.builder(
           numberOfParticles: 5,
@@ -240,7 +189,6 @@ class ListTileDemoParticle extends Particle {
               child: FadingRect(width: 5.0, height: 15.0, color: intToColor(int)),
             );
           },
-          // division by 0 is not good ;)
           initialDistance: 30.0),
       RectangleMirror.builder(
           numberOfParticles: 8,
@@ -251,13 +199,8 @@ class ListTileDemoParticle extends Particle {
               child: FadingRect(width: 5.0, height: 15.0, color: intToColor(int)),
             );
           },
-          // division by 0 is not good ;)
           initialDistance: 80.0),
     ]).paint(canvas, size, progress, seed);
-  }
-
-  double randomOffset(Random random, int range) {
-    return range / 2 - random.nextInt(range);
   }
 
 }
