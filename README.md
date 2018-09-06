@@ -10,7 +10,7 @@
 # Installation
 ```
 dependencies:
-  dynamic_theme:
+  pimp_my_button:
     git:
       url: git://github.com/Norbert515/pimp_my_button.git
 ```
@@ -92,7 +92,7 @@ identical. If you want different particles (or the same with randomized values),
 At the bottom of the hirarchy is the `FadingRect`, all it does is drawing a rectangle which fades out over time. 
 To make it move, it's wrapped in an `AnimatedPositionedParticle`.
 
-This is the full code.
+This is the full code:
 ```
 class DemoParticle extends Particle {
   @override
