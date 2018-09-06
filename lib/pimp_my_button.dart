@@ -171,6 +171,40 @@ class PoppingCircle extends Particle {
   }
 }
 
+
+class Firework extends Particle {
+  @override
+  void paint(Canvas canvas, Size size, double progress, int seed) {
+    FourRandomSlotParticle(children: [
+      IntervalParticle(
+        interval: Interval(0.0, 0.5, curve: Curves.easeIn),
+        child: PoppingCircle(
+          color: Colors.deepOrangeAccent,
+        ),
+      ),
+      IntervalParticle(
+        interval: Interval(0.2, 0.5, curve: Curves.easeIn),
+        child: PoppingCircle(
+          color: Colors.green,
+        ),
+      ),
+      IntervalParticle(
+        interval: Interval(0.4, 0.8, curve: Curves.easeIn),
+        child: PoppingCircle(
+          color: Colors.indigo,
+        ),
+      ),
+      IntervalParticle(
+        interval: Interval(0.5, 1.0, curve: Curves.easeIn),
+        child: PoppingCircle(
+          color: Colors.teal,
+        ),
+      ),
+    ]).paint(canvas, size, progress, seed);
+  }
+
+}
+
 typedef ParticleBuilder = Particle Function(int index);
 
 /// Mirrors a given particle around a circle.
@@ -207,16 +241,19 @@ class CircleMirror extends Particle {
 /// is going to be used on its own, this implies that
 /// all mirrored particles are identical (expect for the rotation around the circle)
 class RectangleMirror extends Particle {
+
+
   final ParticleBuilder particleBuilder;
 
-  final double initialRotation;
+  /// Position of the first particle on the rect
+  final double initialDistance;
 
   final int numberOfParticles;
 
 
-  RectangleMirror.builder({this.particleBuilder, this.initialRotation, this.numberOfParticles});
+  RectangleMirror.builder({this.particleBuilder, this.initialDistance, this.numberOfParticles});
 
-  RectangleMirror({Particle child, this.initialRotation, this.numberOfParticles}) : this.particleBuilder = ((index) => child);
+  RectangleMirror({Particle child, this.initialDistance, this.numberOfParticles}) : this.particleBuilder = ((index) => child);
 
   @override
   void paint(Canvas canvas, Size size, double progress, seed) {
@@ -231,7 +268,7 @@ class RectangleMirror extends Particle {
 
     canvas.translate(-size.width /2, -size.height / 2);
 
-    double currentDistance = 0.0;
+    double currentDistance = initialDistance;
     for (int i = 0; i < numberOfParticles; i++) {
       while(true) {
         if(onHorizontalAxis? currentDistance > size.width : currentDistance > size.height) {
@@ -334,10 +371,10 @@ class IntervalParticle extends Particle {
 }
 
 /// Does nothing else than holding a list of particles and painting them in that order
-class ContainerParticle extends Particle {
+class CompositeParticle extends Particle {
   final List<Particle> children;
 
-  ContainerParticle({this.children});
+  CompositeParticle({this.children});
 
   @override
   void paint(Canvas canvas, Size size, double progress, seed) {

@@ -46,43 +46,97 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         ),
       ),*/
       body: Center(
-        child: GridView(gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
-        children: <Widget>[
-          Center(
-            child: PimpedButton(
-              particle: DemoParticle(),
-              pimpedWidgetBuilder: (context, controller) {
-                return FloatingActionButton(onPressed: () {
-                  controller.forward(from: 0.0);
-                },);
-              },
+        child: Column(
+          children: <Widget>[
+            Expanded(
+              child: Row(
+                children: <Widget>[
+                  Expanded(
+                    child: Center(
+                      child: PimpedButton(
+                        particle: DemoParticle(),
+                        pimpedWidgetBuilder: (context, controller) {
+                          return FloatingActionButton(onPressed: () {
+                            controller.forward(from: 0.0);
+                          },);
+                        },
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Center(
+                      child: PimpedButton(
+                        particle: RectangleDemoParticle(),
+                        pimpedWidgetBuilder: (context, controller) {
+                          return RaisedButton(onPressed: () {
+                            controller.forward(from: 0.0);
+                          },
+                            child: Text("Special button"),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Center(
+                      child: PimpedButton(
+                        particle: Rectangle2DemoParticle(),
+                        pimpedWidgetBuilder: (context, controller) {
+                          return MaterialButton(onPressed: () {
+                            controller.forward(from: 0.0);
+                          },
+                            child: Text("Special button"),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Center(
-            child: PimpedButton(
-              particle: RectangleDemoParticle(),
+            PimpedButton(
+              particle: ListTileDemoParticle(),
               pimpedWidgetBuilder: (context, controller) {
-                return RaisedButton(onPressed: () {
-                  controller.forward(from: 0.0);
-                },
-                child: Text("Special button"),
+                return ListTile(
+                  title: Text("ListTile"),
+                  subtitle: Text("Some nice subtitle"),
+                  trailing: Icon(Icons.add),
+                  onTap: () {
+                    controller.forward(from: 0.0);
+                  },
                 );
               },
             ),
-          ),
-          Center(
-            child: PimpedButton(
-              particle: Rectangle2DemoParticle(),
-              pimpedWidgetBuilder: (context, controller) {
-                return MaterialButton(onPressed: () {
-                  controller.forward(from: 0.0);
+            Center(
+              child: PimpedButton(
+                particle: Rectangle2DemoParticle(),
+                pimpedWidgetBuilder: (context, controller) {
+                  return IconButton(
+                    icon: Icon(Icons.favorite_border),
+                    color: Colors.indigo,
+                    onPressed: () {
+                      controller.forward(from: 0.0);
+                    },
+                  );
                 },
-                  child: Text("Special button"),
-                );
-              },
+              ),
             ),
-          ),
-        ],),
+            Expanded(
+              child: Center(
+                child: PimpedButton(
+                  particle: Rectangle3DemoParticle(),
+                  pimpedWidgetBuilder: (context, controller) {
+                    return RaisedButton(onPressed: () {
+                      controller.forward(from: 0.0);
+                    },
+                      child: Text("Rectangles"),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
