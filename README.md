@@ -3,7 +3,7 @@
 A package which adds a much needed feature to all pressable objects.
 
 # Showcase
-
+![pimp_my_button-showcase](media/pimp_my_gif.gif "pimp_my_button-showcase")
 
 # Features
 
