@@ -7,6 +7,18 @@
 - Very easy to use
 - A lot of premade particles
 
+# Installation
+```
+dependencies:
+  dynamic_theme:
+    git:
+      url: git://github.com/Norbert515/pimp_my_button.git
+```
+run packages get and import it
+```
+import 'package:pimp_my_button/pimp_my_button.dart';
+```
+
 # Basics
 
 The basic setup looks like this:
@@ -125,17 +137,16 @@ class DemoParticle extends Particle {
 
 # Notes
 
-## Some particles worth checking out:
+### Some particles worth checking out:
 - `IntervalParticle`, applies an interval and/or curve to the child.
 - `FourRandomSlotParticle`, positions 4 children on the different sections.
 - `PoppingCircle`, pretty popping circle
 
-## Check out other demo particles:
+### Check out other demo particles:
 https://github.com/Norbert515/pimp_my_button/blob/master/example/lib/particles.dart
 
 
-
-You are not restricted to use the particles in the context of "Pimp my button", the particles can be drawn on any regular canvas.
+### You are not restricted to use the particles in the context of "Pimp my button", the particles can be drawn on any regular canvas.
 
 
 
