@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:pimp_my_button/pimp_my_button.dart';
+import 'package:pimp_my_button/src/pimp_my_button.dart';
 
 Color intToColor(int col) {
   col = col % 5;
@@ -165,7 +165,6 @@ class Rectangle3DemoParticle extends Particle {
 class ListTileDemoParticle extends Particle {
   @override
   void paint(Canvas canvas, Size size, progress, seed) {
-    Random random = Random(seed);
     CompositeParticle(children: [
       Firework(),
       Firework(),

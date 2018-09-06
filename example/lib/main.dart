@@ -1,8 +1,6 @@
-import 'dart:math';
 
-import 'package:example/particles.dart';
-import 'package:flutter/material.dart';
 import 'package:pimp_my_button/pimp_my_button.dart';
+import 'package:flutter/material.dart';
 
 void main() => runApp(new MyApp());
 
