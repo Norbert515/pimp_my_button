@@ -93,7 +93,7 @@ This mirrors its particle around the middle point in a circular shape.
 In this case you provide one `Particle` which is going to be drawn multiple times, thus looking
 identical. If you want different particles (or the same with randomized values), use the `CircleMirror.builder`.
 
-At the bottom of the hirarchy is the `FadingRect`, all it does is drawing a rectangle which fades out over time. 
+At the bottom of the hierarchy is the `FadingRect`, all it does is drawing a rectangle which fades out over time. 
 To make it move, it's wrapped in an `AnimatedPositionedParticle`.
 
 This is the full code:
