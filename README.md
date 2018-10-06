@@ -11,7 +11,7 @@
 
 I will publish this package on pub if people enjoy it. So leave a star if you do ;)
 
-```
+```yaml
 dependencies:
   pimp_my_button:
     git:
@@ -27,7 +27,7 @@ import 'package:pimp_my_button/pimp_my_button.dart';
 
 The basic setup looks like this:
 
-```
+```dart
 PimpedButton(
   particle: DemoParticle(),
   pimpedWidgetBuilder: (context, controller) {
@@ -40,7 +40,7 @@ PimpedButton(
 The `pimpedWidgetBuilder` uses a builder which besides providing a new context, also provides an `AnimationController`.
 When your button is pressed call this code:
 
-```
+```dart
 controller.forward(from: 0.0);
 ```
 It's important to include the `from` field because otherwise the animation won't play after the first tap.
@@ -65,7 +65,7 @@ Each particle has to extend `Particle` and override this method:
 `Random` with that seed (so every frame is synced)
 
 ## The first particle
-```
+```dart
 CompositeParticle(
   children: []
 ).paint(canvas, size, progressm seed);
@@ -79,7 +79,7 @@ The `CompositeParticle` doesn't do much on its own. It only paints all of its ch
 
 The next interesting particle is the `CircleMirror` and `RectangeMirror`.
 
-```
+```dart
     CircleMirror(
         numberOfParticles: 6,
         child: AnimatedPositionedParticle(
@@ -97,7 +97,7 @@ At the bottom of the hierarchy is the `FadingRect`, all it does is drawing a rec
 To make it move, it's wrapped in an `AnimatedPositionedParticle`.
 
 This is the full code:
-```
+```dart
 class DemoParticle extends Particle {
   @override
   void paint(Canvas canvas, Size size, progress, seed) {
