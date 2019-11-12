@@ -13,9 +13,7 @@ I will publish this package on pub if people enjoy it. So leave a star if you do
 
 ```yaml
 dependencies:
-  pimp_my_button:
-    git:
-      url: git://github.com/Norbert515/pimp_my_button.git
+  pimp_my_button: ^1.0.0
 ```
 run packages get and import it
 ```
