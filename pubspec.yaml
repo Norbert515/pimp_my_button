@@ -1,6 +1,6 @@
 name: pimp_my_button
 description: A package which adds a much needed feature to all pressable objects.
-version: 1.0.1
+version: 1.0.1-nullsafety.0
 homepage: 'https://github.com/Norbert515/pimp_my_button'
 
 environment:
